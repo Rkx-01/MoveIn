@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-red: #FF4B26;
+  --color-brand-charcoal: #141414;
+  --color-brand-sand: #FDFCFB;
+  --color-brand-green: #00A36C;
+  
+  --font-heading: 'var(--font-hanken)', sans-serif;
+  --font-body: 'var(--font-public-sans)', sans-serif;
+  
+  --shadow-premium: 0 20px 50px -12px rgba(20, 20, 20, 0.08);
+  --shadow-hover: 0 30px 60px -12px rgba(20, 20, 20, 0.12);
+}
+
+@layer base {
+  :root {
+    --background: #FDFCFB;
+    --foreground: #141414;
+    --primary: #FF4B26;
+    --secondary: #2D2D2D;
+    --accent: #00A36C;
+    --muted: #8E8E8E;
+    --border: #EEEEEE;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+}
+
+@layer utilities {
+  .glass-premium {
+    background: rgba(253, 252, 251, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+
+  .text-reveal {
+    animation: text-reveal 1.2s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+  }
+
+  @keyframes text-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .asymmetrical-clip {
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+  }
+}
+
+/* Leaflet Map Styles */
+@import "leaflet/dist/leaflet.css";
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 40px;
+  z-index: 10;
+  filter: grayscale(1) invert(0.1) contrast(1.1);
+}
+
+.leaflet-marker-icon {
+  filter: hue-rotate(340deg) brightness(1.1);
+}
