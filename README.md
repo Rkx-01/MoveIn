@@ -8,7 +8,7 @@ MoveIn is a premium student housing platform designed to bridge the gap between 
 ## ✨ Key Features
 
 ### 📍 Proximity Engine
-Our intelligent location engine finds stays within walking distance of your college hub (COEP, MIT-WPU, Symbiosis, etc.). It calculates precise walking distances and travel times to ensure you never have to commute.
+Our intelligent location engine finds stays within walking distance of your college hub (COEP, MIT-WPU, Symbiosis, etc.). It calculates precise walking distances and travel times to ensure you never have to commute. Optimized for Pune's student hubs.
 
 ### 🛡️ Safety First Protocol
 Every property on MoveIn undergoes a rigorous **25-Point Safety Audit**. We look beyond the furniture to verify structural safety, emergency exits, neighborhood lighting, and 24/7 security presence.
