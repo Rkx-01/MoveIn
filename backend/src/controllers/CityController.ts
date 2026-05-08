@@ -16,7 +16,7 @@ export class CityController {
     static async getById(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
-            const city = await cityRepository.findById(id);
+            const city = await cityRepository.findById(id as string);
             
             if (!city) {
                 return res.status(404).json({ success: false, message: "City not found" });

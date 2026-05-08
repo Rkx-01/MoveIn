@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: movein-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_TYPE
+        value: postgres
+      - key: PORT
+        value: 5001
+      - key: DATABASE_URL
+        fromDatabase:
+          name: movein-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        sync: false # Set this to your Vercel URL after deploying frontend
+
+databases:
+  - name: movein-db
+    plan: free

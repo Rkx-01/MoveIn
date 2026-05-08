@@ -24,7 +24,7 @@ export class CollegeController {
     static async getById(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
-            const college = await collegeRepository.findById(id);
+            const college = await collegeRepository.findById(id as string);
             
             if (!college) {
                 return res.status(404).json({ success: false, message: "College not found" });

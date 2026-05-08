@@ -34,7 +34,7 @@ export class PropertyController {
 
     static async getDetails(req: Request, res: Response, next: NextFunction) {
         try {
-            const property = await propertyService.getPropertyDetails(req.params.id);
+            const property = await propertyService.getPropertyDetails(req.params.id as string);
             if (!property) return res.status(404).json({ success: false, message: "Not found" });
             res.status(200).json({ success: true, data: property });
         } catch (error) {
