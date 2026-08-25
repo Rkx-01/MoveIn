@@ -111,7 +111,7 @@ export class Property {
     @Column("text", { nullable: true })
     photo_urls!: string; // JSON Array string
 
-    @Column({ type: "datetime", nullable: true })
+    @Column({ type: "timestamp", nullable: true })
     last_fetched_at!: Date;
 
     @OneToMany(() => Booking, (booking) => booking.property)

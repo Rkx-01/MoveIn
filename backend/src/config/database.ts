@@ -24,10 +24,12 @@ export const AppDataSource = new DataSource({
 
 export const connectDB = async () => {
     try {
-        await AppDataSource.initialize();
-        console.log("Database connection established.");
+        if (!AppDataSource.isInitialized) {
+            await AppDataSource.initialize();
+            console.log("Database connection established.");
+        }
     } catch (error) {
         console.error("Error during Data Source initialization:", error);
-        process.exit(1);
+        throw error;
     }
 };
