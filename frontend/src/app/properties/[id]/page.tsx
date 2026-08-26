@@ -103,9 +103,16 @@ export default function PropertyDetail({ params }: { params: Promise<{ id: strin
                      ₹{property.price.toLocaleString()}
                      <span className="text-xs font-black text-stone-300 not-italic uppercase tracking-[0.2em] ml-2">/ month</span>
                    </p>
-                   <div className="flex items-center gap-2 text-sm font-black bg-stone-50 px-3 py-1.5 rounded-2xl">
-                       <Star size={16} className="fill-brand-red text-brand-red" /> {property.safety_score}
-                   </div>
+                   {property.safety_score !== null && property.safety_score !== undefined ? (
+                     <div className="flex items-center gap-2 text-sm font-black bg-stone-50 px-3 py-1.5 rounded-2xl">
+                         <Star size={16} className="fill-brand-red text-brand-red" /> {property.safety_score}
+                     </div>
+                   ) : (
+                     /* Externally-sourced listing — no 25-point audit has run on it yet. */
+                     <div className="text-[10px] font-black uppercase tracking-widest bg-stone-50 text-stone-400 px-3 py-2 rounded-2xl">
+                         Audit Pending
+                     </div>
+                   )}
                 </div>
                 
                 <div className="space-y-3 mb-10">

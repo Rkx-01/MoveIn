@@ -11,7 +11,8 @@ interface PropertyCardProps {
   price: number;
   image?: string;
   isVerified?: boolean;
-  safetyScore?: number;
+  /** Null for listings that have not been through the 25-point audit. */
+  safetyScore?: number | null;
   distanceFromCollege?: number;
   nearbyColleges?: string;
 }
@@ -23,9 +24,12 @@ export function PropertyCard({
   price, 
   image, 
   isVerified = true,
-  safetyScore = 9.5,
+  safetyScore,
   distanceFromCollege = 0.8,
 }: PropertyCardProps) {
+  // Externally-sourced stays carry no audit, so there is no score to show —
+  // showing a default here would put a number MoveIn never measured on the card.
+  const auditedScore = typeof safetyScore === "number" ? safetyScore : null;
   return (
     <motion.div
       whileHover={{ y: -10 }}
@@ -85,7 +89,7 @@ export function PropertyCard({
           <div className="absolute bottom-8 left-8 right-8 text-white transform transition-transform duration-500 group-hover:translate-y-[-8px]">
             <div className="flex items-center gap-2 mb-2">
                <span className="px-2 py-0.5 rounded-md bg-white/20 backdrop-blur-md text-[10px] font-black uppercase tracking-widest">
-                 {safetyScore} Safety Score
+                 {auditedScore !== null ? `${auditedScore} Safety Score` : "Audit Pending"}
                </span>
             </div>
             <h3 className="font-heading font-black text-2xl leading-tight mb-2 tracking-tighter">
