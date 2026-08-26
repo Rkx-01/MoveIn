@@ -78,6 +78,18 @@ function PropertiesContent() {
     }
   }, [initialCollegeId]);
 
+  // The badge used to claim "Google Places Live" unconditionally. Read the
+  // real provenance off the listings instead — without a GOOGLE_PLACES_API_KEY
+  // the live feed is OpenStreetMap, and most stays are MoveIn's own stock.
+  const dataSourceLabel = (() => {
+    const sources = new Set(
+      properties.map((p) => p.external_source).filter(Boolean)
+    );
+    if (sources.size === 0) return "MoveIn Verified Stock";
+    if (sources.size > 1) return "Multiple Live Sources";
+    return sources.has("google_places") ? "Google Places Live" : "OpenStreetMap Live";
+  })();
+
   const toggleAmenity = (amenity: string) => {
     setAmenities(prev => 
       prev.includes(amenity) ? prev.filter(a => a !== amenity) : [...prev, amenity]
@@ -116,7 +128,7 @@ function PropertiesContent() {
                 </div>
                 <div>
                    <p className="text-[9px] font-black uppercase tracking-widest text-stone-300">Data Source</p>
-                   <p className="text-[10px] font-black uppercase text-brand-charcoal">Google Places Live</p>
+                   <p className="text-[10px] font-black uppercase text-brand-charcoal">{dataSourceLabel}</p>
                 </div>
              </div>
 
