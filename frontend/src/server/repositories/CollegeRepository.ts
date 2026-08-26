@@ -1,4 +1,10 @@
 import { query, queryOne } from "../db";
+import {
+  isStaticMode,
+  staticFindCollegeById,
+  staticFindColleges,
+  staticSearchColleges,
+} from "../data/staticStore";
 import type { College } from "../models";
 
 const SELECT_COLLEGE = `
@@ -13,10 +19,14 @@ const SELECT_COLLEGE = `
 
 export class CollegeRepository {
   async findAll(): Promise<College[]> {
+    if (isStaticMode()) return staticFindColleges();
+
     return query<College>(`SELECT ${SELECT_COLLEGE} ORDER BY col.name ASC`);
   }
 
   async findById(college_id: string): Promise<College | null> {
+    if (isStaticMode()) return staticFindCollegeById(college_id);
+
     return queryOne<College>(
       `SELECT ${SELECT_COLLEGE} WHERE col.college_id = $1`,
       [college_id]
@@ -24,6 +34,8 @@ export class CollegeRepository {
   }
 
   async search(term: string): Promise<College[]> {
+    if (isStaticMode()) return staticSearchColleges(term).slice(0, 10);
+
     return query<College>(
       `SELECT ${SELECT_COLLEGE}
        WHERE col.name ILIKE $1

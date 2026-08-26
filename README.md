@@ -60,6 +60,21 @@ SEED_SECRET=any_random_string
 `NEXT_PUBLIC_API_URL` is **not** required — the UI calls the same origin at `/api`.
 Set it only to point the UI at a different host.
 
+### Running without a database
+
+The read APIs fall back to a committed snapshot — `src/server/data/staticCatalog.json`,
+128 stays including the 73 real OpenStreetMap ones — whenever `DATABASE_URL` is
+absent. A deploy with no database configured still browses correctly instead of
+returning HTTP 500 from every route.
+
+Writes are not covered: registering, logging in and booking need a real
+database and fail loudly rather than pretending to succeed.
+
+Regenerate the snapshot after importing new stays:
+```bash
+npm run export:catalog
+```
+
 ### 4. Database Seeding
 The schema is created automatically on first request. To populate Pune stays:
 ```bash

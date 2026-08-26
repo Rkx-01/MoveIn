@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "tsx --env-file-if-exists=.env.local src/scripts/seed.ts",
-    "import:stays": "tsx --env-file-if-exists=.env.local src/scripts/import-stays.ts"
+    "import:stays": "tsx --env-file-if-exists=.env.local src/scripts/import-stays.ts",
+    "export:catalog": "tsx --env-file-if-exists=.env.local src/scripts/export-catalog.ts"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",

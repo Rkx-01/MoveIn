@@ -1,5 +1,10 @@
 import { query, queryOne } from "../db";
 import {
+  isStaticMode,
+  staticFindProperties,
+  staticFindPropertyById,
+} from "../data/staticStore";
+import {
   type Property,
   type PropertyFilters,
   PropertyStatus,
@@ -32,6 +37,8 @@ export class PropertyRepository {
   async findAll(
     filters: PropertyFilters = {}
   ): Promise<{ items: Property[]; total: number }> {
+    if (isStaticMode()) return staticFindProperties(filters);
+
     const page = Math.max(parseInt(filters.page ?? "1", 10) || 1, 1);
     const limit = Math.min(Math.max(parseInt(filters.limit ?? "12", 10) || 12, 1), 100);
     const offset = (page - 1) * limit;
@@ -122,6 +129,8 @@ export class PropertyRepository {
   }
 
   async findById(property_id: string): Promise<Property | null> {
+    if (isStaticMode()) return staticFindPropertyById(property_id);
+
     return queryOne<Property>(
       `SELECT ${SELECT_PROPERTY} ${FROM_PROPERTY} WHERE p.property_id = $1`,
       [property_id]

@@ -2,6 +2,7 @@ import { PropertyRepository } from "../repositories/PropertyRepository";
 import { UserRepository } from "../repositories/UserRepository";
 import { CollegeRepository } from "../repositories/CollegeRepository";
 import { ExternalPropertyService } from "./ExternalPropertyService";
+import { isStaticMode } from "../data/staticStore";
 import { type Property, type PropertyFilters, UserRole } from "../models";
 
 export class PropertyService {
@@ -36,6 +37,10 @@ export class PropertyService {
    * serverless function would kill the moment it returned.
    */
   async syncExternalForCollege(collegeId: string): Promise<void> {
+    // Without a database there is nowhere to cache new listings, and the
+    // static catalogue is already a snapshot of a completed import.
+    if (isStaticMode()) return;
+
     const college = await this.collegeRepository.findById(collegeId);
     if (!college) return;
     await this.externalPropertyService.syncNearbyProperties(collegeId);
