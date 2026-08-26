@@ -19,7 +19,26 @@ import {
  * booking — genuinely needs a database and still fails loudly rather than
  * pretending to succeed.
  */
-export const isStaticMode = (): boolean => !process.env.DATABASE_URL;
+/**
+ * True when there is no usable database.
+ *
+ * Absent DATABASE_URL is the obvious case. The second case is a deployed host
+ * whose DATABASE_URL still points at localhost — the value copied out of a
+ * local .env.local. That connection can never succeed from a serverless
+ * function (it resolves to the function's own container, not a database), so
+ * treating it as "no database" is strictly better than failing every request.
+ *
+ * The localhost rule is gated on VERCEL so that local development, where a
+ * localhost database is exactly right, keeps using the real one.
+ */
+export const isStaticMode = (): boolean => {
+  const url = process.env.DATABASE_URL;
+  if (!url) return true;
+
+  const isDeployed = process.env.VERCEL === "1";
+  const pointsAtLocalhost = /@(localhost|127\.0\.0\.1|\[::1\])[:/]/.test(url);
+  return isDeployed && pointsAtLocalhost;
+};
 
 export const staticCounts = catalog.counts;
 export const staticGeneratedAt = catalog.generatedAt;
