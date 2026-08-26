@@ -1,15 +1,25 @@
-import { runSeed } from "@/server/seed";
+import { ensureMasterData, runSeed } from "@/server/seed";
 import { fail, handler, ok } from "@/server/http";
 
 export const maxDuration = 60;
 
 /**
- * Populates the database with the Pune MVP dataset.
+ * Populates the database with the Pune MVP dataset. Gated behind SEED_SECRET;
+ * if it is unset the route refuses to run rather than defaulting open.
  *
- * Destructive, so it is gated behind SEED_SECRET. Call it once after a fresh
- * deploy:
+ * Two modes, and the safe one is the default on purpose — this endpoint is a
+ * single curl away from truncating a live database:
+ *
+ *   ?mode=safe  (default) Adds the schema plus any missing cities and colleges.
+ *               Leaves users, bookings, payments and properties alone. Safe to
+ *               run against production, and safe to re-run.
+ *
+ *   ?mode=reset           The original destructive rebuild: TRUNCATEs
+ *               payments, bookings, reviews, properties, colleges, cities and
+ *               users, then reseeds from scratch. Fresh databases only.
+ *               Add &demo=false to skip the invented demo stays.
+ *
  *   curl -X POST https://<app>/api/admin/seed -H "x-seed-secret: <SEED_SECRET>"
- * If SEED_SECRET is unset the route refuses to run rather than defaulting open.
  */
 export const POST = handler(async (request) => {
   const secret = process.env.SEED_SECRET;
@@ -20,9 +30,18 @@ export const POST = handler(async (request) => {
     return fail("Not authorized to access this route", 401);
   }
 
-  // ?demo=false seeds cities/colleges/users but skips the invented demo stays.
-  const includeDemoProperties =
-    new URL(request.url).searchParams.get("demo") !== "false";
-  const summary = await runSeed({ includeDemoProperties });
-  return ok({ data: summary });
+  const params = new URL(request.url).searchParams;
+  const mode = params.get("mode") ?? "safe";
+
+  if (mode === "safe") {
+    const summary = await ensureMasterData();
+    return ok({ data: { mode, ...summary } });
+  }
+
+  if (mode === "reset") {
+    const summary = await runSeed({ includeDemoProperties: params.get("demo") !== "false" });
+    return ok({ data: { mode, ...summary } });
+  }
+
+  return fail(`Unknown mode "${mode}". Use "safe" or "reset".`, 400);
 });

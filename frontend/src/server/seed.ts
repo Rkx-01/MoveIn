@@ -50,6 +50,54 @@ export interface SeedSummary {
   users: number;
 }
 
+export interface MasterDataSummary {
+  citiesAdded: number;
+  collegesAdded: number;
+}
+
+/**
+ * Non-destructive counterpart to `runSeed`.
+ *
+ * Creates the schema and fills in any missing cities and colleges, leaving
+ * every existing row — users, bookings, payments, properties — untouched. This
+ * is what a live database wants: `runSeed` truncates, which is fine on a fresh
+ * install and catastrophic once real people have signed up.
+ *
+ * Safe to run repeatedly; it inserts only what is absent.
+ */
+export const ensureMasterData = async (): Promise<MasterDataSummary> => {
+  await ensureSchema();
+
+  let citiesAdded = 0;
+  for (const c of MASTER_CITIES) {
+    const inserted = await queryOne<City>(
+      // The casts are required: $1 and $2 appear both in the SELECT list and
+      // in the WHERE clause, and Postgres cannot deduce a type from that alone.
+      `INSERT INTO cities (name, state, latitude, longitude, tier)
+       SELECT $1::varchar, $2::varchar, $3::numeric, $4::numeric, $5::varchar
+       WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name = $1 AND state = $2)
+       RETURNING *`,
+      [c.name, c.state, c.lat, c.lon, c.tier]
+    );
+    if (inserted) citiesAdded++;
+  }
+
+  let collegesAdded = 0;
+  for (const c of MASTER_COLLEGES) {
+    const city = await queryOne<City>(`SELECT * FROM cities WHERE name = $1`, [c.city]);
+    const inserted = await queryOne<College>(
+      `INSERT INTO colleges (name, type, area, latitude, longitude, city_id)
+       SELECT $1::varchar, $2::varchar, $3::varchar, $4::numeric, $5::numeric, $6::uuid
+       WHERE NOT EXISTS (SELECT 1 FROM colleges WHERE name = $1)
+       RETURNING *`,
+      [c.name, c.type as CollegeType, c.area, c.lat, c.lon, city?.city_id ?? null]
+    );
+    if (inserted) collegesAdded++;
+  }
+
+  return { citiesAdded, collegesAdded };
+};
+
 export interface SeedOptions {
   /**
    * Generate the five demo stays per college. These are invented, not real

@@ -123,14 +123,29 @@ connection string — serverless functions open many short-lived connections.
 | `SEED_SECRET` | to seed | Gates `POST /api/admin/seed`; seeding is disabled without it |
 | `GOOGLE_PLACES_API_KEY` | no | Richer listings (ratings). Falls back to OpenStreetMap, which needs no key |
 
-### 3. Deploy, then seed once
+### 3. Deploy, then populate
+Both routes are gated by the `x-seed-secret` header and are safe to re-run.
+
 ```bash
+# 1. Schema, cities and colleges. Adds only what is missing — existing users,
+#    bookings and properties are left alone.
 curl -X POST https://<your-app>.vercel.app/api/admin/seed \
   -H "x-seed-secret: <SEED_SECRET>"
+
+# 2. Real stays from OpenStreetMap. Works through as many colleges as fit in
+#    one invocation; repeat until the response reports "remaining": 0.
+curl -X POST https://<your-app>.vercel.app/api/admin/import-stays \
+  -H "x-seed-secret: <SEED_SECRET>"
 ```
-This is destructive — it truncates and rebuilds the dataset, so run it on a fresh
-database only. Add `?demo=false` to skip the invented demo stays. Real listings
-then arrive on their own, as students filter by college.
+
+Step 2 is optional — the properties API backfills the same source lazily as
+students filter by college. Running it just means the catalogue is populated
+before the first visitor rather than after.
+
+> **`?mode=reset` is destructive.** It TRUNCATEs payments, bookings, reviews,
+> properties, colleges, cities and users, then rebuilds from scratch with the
+> generated demo stays. Fresh databases only — never against a deployment with
+> real signups. Add `&demo=false` to rebuild without the invented stays.
 
 ### API surface
 | Route | Method | Auth |
@@ -144,6 +159,7 @@ then arrive on their own, as students filter by college.
 | `/api/bookings` | POST | Tenant |
 | `/api/bookings/my-bookings` | GET | Tenant |
 | `/api/admin/seed` | POST | `x-seed-secret` |
+| `/api/admin/import-stays` | POST | `x-seed-secret` |
 
 ---
 
